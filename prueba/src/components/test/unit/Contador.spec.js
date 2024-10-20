@@ -1,25 +1,60 @@
+import { mount } from '@vue/test-utils';
 import { createStore } from 'vuex';
-import { shallowMount } from '@vue/test-utils';
 import Contador from '@/components/Contador.vue';
-import storeConfig from '@/store';
-
-const store = createStore(storeConfig);
 
 describe('Contador.vue', () => {
-  it('verifica el valor inicial del contador', () => {
-    const wrapper = shallowMount(Contador, { global: { plugins: [store] } });
+  let store;
+
+  beforeEach(() => {
+    store = createStore({
+      state() {
+        return {
+          contador: 0,
+        };
+      },
+      mutations: {
+        incrementar(state) {
+          state.contador++;
+        },
+        decrementar(state) {
+          state.contador--;
+        },
+      },
+    });
+  });
+
+  it('debe recibir un valor inicial en el contador', () => {
+    const wrapper = mount(Contador, {
+      global: {
+        plugins: [store],
+      },
+    });
+
     expect(wrapper.text()).toContain('Contador: 0');
   });
 
-  it('incrementa el contador', async () => {
-    const wrapper = shallowMount(Contador, { global: { plugins: [store] } });
-    await wrapper.find('button').trigger('click');
+  it('incrementa el contador cuando se hace clic en el botón de incrementar', async () => {
+    const wrapper = mount(Contador, {
+      global: {
+        plugins: [store],
+      },
+    });
+
+    await wrapper.find('button.incrementar').trigger('click');
+
     expect(wrapper.text()).toContain('Contador: 1');
   });
 
-  it('decrementa el contador', async () => {
-    const wrapper = shallowMount(Contador, { global: { plugins: [store] } });
-    await wrapper.findAll('button')[1].trigger('click');
+  it('decrementa el contador cuando se hace clic en el botón de decrementar', async () => {
+    const wrapper = mount(Contador, {
+      global: {
+        plugins: [store],
+      },
+    });
+
+    await wrapper.find('button.decrementar').trigger('click');
+
     expect(wrapper.text()).toContain('Contador: -1');
   });
 });
+
